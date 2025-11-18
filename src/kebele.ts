@@ -32,4 +32,11 @@ program
         await core.status()
     })
 
+program
+    .command('update [container-id]')
+    .description('check and apply updates to containers')
+    .action(async (containerId?: string) => {
+        await core.update(containerId)
+    })
+
 program.parse()

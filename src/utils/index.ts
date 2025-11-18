@@ -1,7 +1,8 @@
-export { welcome } from './welcome' // not needed?
-//export { runner } from './runner' // not needed?
-//export { detect } from './detect' // not needed anymore
+export { welcome } from './welcome'
 export { check_docker } from './check_docker'
 export { validate_url } from './validate_url'
 export { docker_request } from './docker_request'
 export { sleep } from './sleep'
+export { check_updates, check_container_updates } from './check_updates'
+export { to_cron_syntax, get_schedule_options, validate_cron_expression } from './cron_schedule'
+export { send_webhook, notify_update_started, notify_update_completed, notify_update_failed, notify_container_created } from './webhook'

@@ -7,6 +7,7 @@ import Database from 'better-sqlite3'
 export { config } from './config/config'
 export { add } from './add/add'
 export { status } from './status/status'
+export { update } from './update/update'
 
 // Use the user's home directory to store the application data
 const appDataPath = path.join(os.homedir(), '.kebele')
