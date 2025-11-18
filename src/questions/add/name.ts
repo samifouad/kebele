@@ -1,10 +1,14 @@
-// @ts-nocheck
 import inquirer from 'inquirer'
 import chalk from 'chalk'
 import { customAlphabet } from 'nanoid'
 
-import * as core from '@/core'
+import { db } from '@/core'
+import { sleep } from '@/utils'
 
+// types
+interface CountResult {
+    count: number
+}
 
 // generate a random id
 const nanoid = customAlphabet('0123456789', 5)
@@ -18,9 +22,9 @@ export async function name() {
 
     try {
 
-        const query = core.db.prepare("SELECT COUNT(name) as count from containers where name = ?")    
+        const query = db.prepare("SELECT COUNT(name) as count from containers where name = ?")
 
-        const count = query.all(answer.result)
+        const count = query.all(answer.result) as CountResult[]
 
         if (count[0] && count[0].count > 0) {
             console.error('')
@@ -30,8 +34,8 @@ export async function name() {
             console.error('')
             process.exit(1)
         }
-       
-        await core.sleep(300)
+
+        await sleep(300)
 
     } catch (error) {
         console.error('operation failed')

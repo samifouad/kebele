@@ -1,16 +1,30 @@
-// @ts-nocheck
 import chalk from 'chalk'
 import { customAlphabet } from 'nanoid'
 import { createSpinner } from 'nanospinner'
 
 // core/helper functions
-import { db } from '../index.ts'
+import { db } from '../index'
+
+// utils
+import * as utils from '@/utils'
+import runner from '@/utils/runner'
 
 // setup questions
 import * as questions from '@/questions'
 
 // handle answers
 import * as handlers from '@/handlers'
+
+// types
+interface ContainerConfig {
+    id: string
+    name: string
+    url: string
+    ePort: number
+    iPort: number
+    cron: string
+    update: string
+}
 
 if (db) {
     db.transaction(() => {
@@ -41,23 +55,24 @@ if (db) {
 const nanoid = customAlphabet('123456789ABCDEFGHIJKLMNPRSTWXYZabcdefhijklmnprstwxyz', 8)
 
 // defaults
-const config = {}
-config.id = nanoid() // has index
-config.name = '' // has unique constraint, has index
-config.url = '' // has unique constraint, has index
-config.ePort = 80 // has unique constraint
-config.iPort = 8080
-config.cron = 'Every minute'
-config.update = 'Stop Container, Apply Update & Restart Container'
+const config: ContainerConfig = {
+    id: nanoid(), // has index
+    name: '', // has unique constraint, has index
+    url: '', // has unique constraint, has index
+    ePort: 80, // has unique constraint
+    iPort: 8080,
+    cron: 'Every minute',
+    update: 'Stop Container, Apply Update & Restart Container'
+}
 
 export async function add() {
     // welcome message
-    await core.welcome("add")
+    await utils.welcome("add")
 
     // check if docker available or exit
     try {
 
-        await core.checkDocker()
+        await utils.check_docker()
 
     } catch (err) {
         console.error(`could not connect to 2375 on localhost`)
@@ -73,15 +88,15 @@ export async function add() {
     await questions.name().then(async (answer) => {
         const spinner_questions = createSpinner('Loading...').start()
         config.name = answer.result
-        await core.sleep(500)
+        await utils.sleep(500)
         spinner_questions.success({ text: 'Ok'})
     })
-    
+
     // url of container
     await questions.url().then(async (answer) => {
         const spinner_questions = createSpinner('Loading...').start()
         config.url = answer.result
-        await core.sleep(500)
+        await utils.sleep(500)
         spinner_questions.success({ text: 'Ok'})
     })
 
@@ -89,7 +104,7 @@ export async function add() {
     await questions.ePort().then(async (answer) => {
         const spinner_ePort = createSpinner('Loading...').start()
         config.ePort = answer.result
-        await core.sleep(500)
+        await utils.sleep(500)
         spinner_ePort.success({ text: 'Ok'})
     })
 
@@ -97,7 +112,7 @@ export async function add() {
     await questions.iPort().then(async (answer) => {
         const spinner_iPort = createSpinner('Loading...').start()
         config.iPort = answer.result
-        await core.sleep(500)
+        await utils.sleep(500)
         spinner_iPort.success({ text: 'Ok'})
     })
 
@@ -105,7 +120,7 @@ export async function add() {
     await questions.cron().then(async (answer) => {
         const spinner_cron = createSpinner('Loading...').start()
         config.cron = answer.result
-        await core.sleep(500)
+        await utils.sleep(500)
         spinner_cron.success({ text: 'Ok'})
     });
 
@@ -113,7 +128,7 @@ export async function add() {
     await questions.update().then(async (answer) => {
         const spinner_update = createSpinner('Loading...').start()
         config.update = answer.result
-        await core.sleep(500)
+        await utils.sleep(500)
         spinner_update.success({ text: 'Ok'})
     });
 
@@ -145,19 +160,10 @@ export async function add() {
     })
 
     console.log('\n✅ Testing everything')
-    await core.runner()
+    await runner()
     console.log('\n🥳 You\'re good!')
 
     console.log('\nUse ' + chalk.blue('kebele --help') +' for guidance & report issues at https://kebele.dev')
 
     console.log('\nRun ' + chalk.blue('kebele status') +' to check on your containers\n')
 }
-
-// run a handler depending on user selection
-//
-// unused now but will be used later
-//
-// if (config.git === 'Yes') {
-//     console.log('\n Setting up git repo')
-//     await handlers.git()
-// }

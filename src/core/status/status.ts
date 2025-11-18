@@ -1,15 +1,36 @@
-// @ts-nocheck
-
 import { createSpinner } from 'nanospinner'
 import chalk from 'chalk'
-import * as core from '@/core'
 import { docker_request } from '@/utils'
+
+// types
+interface DockerPort {
+    IP?: string
+    PrivatePort: number
+    PublicPort?: number
+    Type: string
+}
+
+interface DockerContainer {
+    Id: string
+    Image: string
+    Status: string
+    Ports: DockerPort[]
+    Labels: {
+        [key: string]: string
+    }
+}
+
+interface DockerResponse {
+    statusCode: number
+    data: DockerContainer[]
+    headers?: any
+}
 
 export async function status() {
     const spinner = createSpinner('task: check docker status').start();
 
     try {
-        const response: any = await docker_request('/containers/json?all=true')
+        const response = await docker_request('/containers/json?all=true') as DockerResponse
 
         if (!response.statusCode || response.statusCode !== 200) {
             throw ({ message: 'error: unusual response from Docker daemon'})
@@ -37,7 +58,7 @@ export async function status() {
             } else {
                 portInfo = 'Multiple'
             }
-            console.log('ID: '+ chalk.blue(container.Id.substr(0, 8)) + 
+            console.log('ID: '+ chalk.blue(container.Id.substring(0, 8)) + 
                         ' - Image: '+ chalk.blue(container.Image) +  
                         ' ('+ chalk.magenta(currentVersion) +')' +
                         ' - Ports: '+ chalk.blue(portInfo) +' - Status: '+ currentStatus
